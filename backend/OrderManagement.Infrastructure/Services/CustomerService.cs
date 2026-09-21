@@ -1,0 +1,9 @@
+using Microsoft.EntityFrameworkCore;
+using OrderManagement.Application.DTOs.Customers; using OrderManagement.Application.Interfaces.Services; using OrderManagement.Domain.Entities; using OrderManagement.Infrastructure.Data;
+namespace OrderManagement.Infrastructure.Services;
+public sealed class CustomerService:ICustomerService {private readonly AppDbContext _db; public CustomerService(AppDbContext db)=>_db=db;
+ public async Task<IReadOnlyList<CustomerResponse>> GetAllAsync(CancellationToken ct=default)=>await _db.Customers.AsNoTracking().OrderBy(x=>x.Name).Select(x=>new CustomerResponse(x.Id,x.Name,x.Email,x.Phone,x.Active,x.CreatedAt)).ToListAsync(ct);
+ public async Task<CustomerResponse?> GetByIdAsync(Guid id,CancellationToken ct=default)=>await _db.Customers.AsNoTracking().Where(x=>x.Id==id).Select(x=>new CustomerResponse(x.Id,x.Name,x.Email,x.Phone,x.Active,x.CreatedAt)).FirstOrDefaultAsync(ct);
+ public async Task<CustomerResponse> CreateAsync(CustomerRequest r,CancellationToken ct=default){var x=new Customer{Id=Guid.NewGuid(),Name=r.Name.Trim(),Email=r.Email?.Trim(),Phone=r.Phone?.Trim(),Active=r.Active,CreatedAt=DateTime.UtcNow};_db.Customers.Add(x);await _db.SaveChangesAsync(ct);return new(x.Id,x.Name,x.Email,x.Phone,x.Active,x.CreatedAt);} 
+ public async Task<CustomerResponse?> UpdateAsync(Guid id,CustomerRequest r,CancellationToken ct=default){var x=await _db.Customers.FindAsync(new object[] { id },ct);if(x is null)return null;x.Name=r.Name.Trim();x.Email=r.Email?.Trim();x.Phone=r.Phone?.Trim();x.Active=r.Active;await _db.SaveChangesAsync(ct);return new(x.Id,x.Name,x.Email,x.Phone,x.Active,x.CreatedAt);} 
+ public async Task<bool> DeleteAsync(Guid id,CancellationToken ct=default){var x=await _db.Customers.FindAsync(new object[] { id },ct);if(x is null)return false;_db.Customers.Remove(x);await _db.SaveChangesAsync(ct);return true;}}

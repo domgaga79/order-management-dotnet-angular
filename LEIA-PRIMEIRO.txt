@@ -1,0 +1,28 @@
+ORDER MANAGEMENT .NET 8 + ANGULAR 17
+=================================
+
+ESTE ZIP FOI PREPARADO PARA CONTINUAR O PROJETO QUE VOCE JA CRIOU.
+
+1) Pare a API (Ctrl+C).
+2) Faça uma cópia de segurança da pasta atual.
+3) Extraia o conteúdo deste ZIP SOBRE:
+   C:\Users\Iuri\order-management-dotnet-angular
+4) IMPORTANTE: não apague a pasta já existente:
+   backend\OrderManagement.Infrastructure\Data\Migrations
+   O ZIP não contém essa pasta justamente para preservar sua migration InitialCreate.
+5) Na raiz, execute:
+   powershell -ExecutionPolicy Bypass -File .\setup.ps1
+6) Rode a API:
+   dotnet run --project backend\OrderManagement.Api
+7) Em outro PowerShell, crie o admin local:
+   .\seed-admin.ps1
+8) Rode o Angular:
+   cd frontend\order-management-web
+   npm install
+   npm start
+
+Swagger: http://localhost:5294/swagger
+Angular: http://localhost:4200
+Admin local: admin@local.test / Admin123!
+
+A senha acima serve somente para estudo local.

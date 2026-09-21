@@ -1,0 +1,33 @@
+ORDER MANAGEMENT - ATUALIZACAO DE FINALIZACAO
+
+1. Extraia este ZIP por cima de:
+   C:\Users\Iuri\order-management-dotnet-angular
+
+2. Substitua os arquivos quando o Windows perguntar.
+
+3. Pare os terminais atuais do Angular/API com Ctrl+C.
+
+4. Na raiz do projeto execute:
+   .\start-dev.ps1
+
+Se o PowerShell bloquear o script:
+   Unblock-File .\start-dev.ps1
+   Unblock-File .\stop-dev.ps1
+   .\start-dev.ps1
+
+O patch adiciona:
+- categorias no frontend;
+- CRUD visual completo de produtos;
+- CRUD visual completo de clientes;
+- pedidos com varios itens;
+- concluir pedido;
+- cancelar pedido com restauracao de estoque (Admin);
+- dashboard com indicadores reais;
+- login com erros reais de API/401;
+- sessao com nome/role/expiracao;
+- navegacao responsiva;
+- start-dev.ps1 e stop-dev.ps1;
+- CORS para localhost:4200 e localhost:4201.
+
+A API continua em http://localhost:5294
+O Angular continua em http://localhost:4200

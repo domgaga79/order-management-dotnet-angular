@@ -1,0 +1,15 @@
+CORRECAO DE COMPILACAO ANGULAR 17
+
+Este patch corrige:
+1. NG5002 no login: @ literal do e-mail escapado como &#64; no template.
+2. NG9 em Orders: track $index alterado para track line; o indice continua disponivel via let i = $index.
+
+Extraia sobre:
+C:\Users\Iuri\order-management-dotnet-angular
+
+Depois, com o ng serve em Watch mode, o Angular deve recompilar automaticamente.
+Se voce tiver encerrado o servidor, rode:
+cd C:\Users\Iuri\order-management-dotnet-angular\frontend\order-management-web
+npm start
+
+Nao precisa rodar npm install novamente.

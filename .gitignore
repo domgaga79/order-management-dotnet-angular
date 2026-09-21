@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/.angular/
+.vscode/
+.idea/
+.env
+*.user
+*.suo
+.DS_Store
+frontend/order-management-web/dist/
