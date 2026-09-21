@@ -1,17 +1,23 @@
-# Screenshots
+# Screenshots do projeto
 
-Coloque aqui as imagens reais do sistema para o README do GitHub.
+Os arquivos visuais desta pasta são gerados a partir da aplicação real em execução.
 
-Sugestão de nomes:
+Na raiz do repositório:
 
-```text
-login.png
-dashboard.png
-categories.png
-products.png
-customers.png
-orders.png
-swagger.png
+```powershell
+.\start-dev.ps1
+.\scripts\capture-portfolio.ps1
 ```
 
-Para portfólio, prefira screenshots com dados fictícios e sem informações pessoais, tokens ou segredos visíveis.
+A captura usa Playwright apenas como ferramenta temporária (`npm --no-save`) e não altera o `package.json`.
+
+Arquivos esperados:
+
+- `01-dashboard.png`
+- `02-categories.png`
+- `03-products.png`
+- `04-customers.png`
+- `05-orders.png`
+- `order-flow.gif`
+
+Depois da captura, revise as imagens e faça commit delas junto com o README.

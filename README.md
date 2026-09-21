@@ -1,6 +1,24 @@
 # Order Management — .NET 8 + Angular 17
 
+[![CI](https://github.com/domgaga79/order-management-dotnet-angular/actions/workflows/ci.yml/badge.svg)](https://github.com/domgaga79/order-management-dotnet-angular/actions/workflows/ci.yml)
+
 Sistema full stack para gerenciamento de pedidos, clientes, produtos, categorias e estoque, desenvolvido como projeto de estudo e portfólio com foco em práticas aplicáveis a sistemas corporativos.
+
+## Demonstração
+
+> As imagens abaixo são capturadas da aplicação local real. Para gerar/atualizar os arquivos, execute `.\scripts\capture-portfolio.ps1` com backend e frontend em execução.
+
+<p align="center">
+  <img src="docs/screenshots/order-flow.gif" alt="Fluxo visual do Order Management" width="900">
+</p>
+
+| Dashboard | Produtos |
+|---|---|
+| ![Dashboard](docs/screenshots/01-dashboard.png) | ![Produtos](docs/screenshots/03-products.png) |
+
+| Clientes | Pedidos |
+|---|---|
+| ![Clientes](docs/screenshots/04-customers.png) | ![Pedidos](docs/screenshots/05-orders.png) |
 
 ## Visão geral
 
@@ -23,8 +41,10 @@ A aplicação possui frontend em Angular 17 e API REST em ASP.NET Core/.NET 8. O
 - Dashboard com indicadores operacionais.
 - Swagger/OpenAPI com suporte a Bearer Token.
 - Docker Compose para PostgreSQL.
-- Testes automatizados com xUnit.
-- Pipeline de CI para build e testes do backend e build do frontend.
+- Testes unitários e de integração com xUnit.
+- PostgreSQL descartável nos testes de integração via Testcontainers.
+- Cobertura coletada no GitHub Actions.
+- Pipeline de CI para backend e frontend.
 
 ## Arquitetura
 
@@ -47,7 +67,7 @@ ASP.NET Core Web API
  PostgreSQL 16
 ```
 
-A solução .NET está organizada em projetos separados:
+A solução .NET está organizada em:
 
 ```text
 backend/
@@ -58,15 +78,13 @@ backend/
 └── OrderManagement.Tests
 ```
 
-### Responsabilidades
-
 | Projeto | Responsabilidade |
 |---|---|
 | `OrderManagement.Api` | Controllers, autenticação, Swagger, DI e configuração HTTP |
 | `OrderManagement.Application` | DTOs, interfaces e serviços de aplicação |
 | `OrderManagement.Domain` | Entidades e enums do domínio |
 | `OrderManagement.Infrastructure` | EF Core, PostgreSQL, repositories e serviços de persistência |
-| `OrderManagement.Tests` | Testes automatizados |
+| `OrderManagement.Tests` | Testes unitários e de integração |
 
 Mais detalhes em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
@@ -84,7 +102,8 @@ Mais detalhes em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 - BCrypt
 - Swagger / OpenAPI
 - xUnit
-- Moq
+- Testcontainers.PostgreSql
+- Coverlet
 
 ### Frontend
 
@@ -122,7 +141,7 @@ Isso reduz o risco de duas requisições concorrentes venderem o mesmo estoque d
 
 ### Cancelamento
 
-Pedidos pendentes podem ser cancelados e suas quantidades são devolvidas ao estoque dentro de uma transação. Pedidos já concluídos não podem ser cancelados.
+Pedidos pendentes podem ser cancelados e suas quantidades são devolvidas ao estoque dentro de uma transação. O cancelamento repetido é idempotente e não devolve estoque duas vezes. Pedidos concluídos não podem ser cancelados.
 
 ### Histórico de preço
 
@@ -137,15 +156,13 @@ O item do pedido possui `UnitPrice`, preservando o preço aplicado no momento da
 - Node.js
 - npm
 
-### 1. Banco de dados
-
-Na raiz:
+### Banco
 
 ```powershell
 docker compose up -d
 ```
 
-### 2. Backend
+### Backend
 
 ```powershell
 dotnet restore
@@ -159,9 +176,7 @@ Swagger:
 http://localhost:5294/swagger
 ```
 
-### 3. Frontend
-
-Em outro terminal:
+### Frontend
 
 ```powershell
 cd frontend\order-management-web
@@ -175,9 +190,7 @@ Frontend:
 http://localhost:4200
 ```
 
-### Atalho de desenvolvimento
-
-Se os scripts do projeto estiverem presentes:
+### Atalho
 
 ```powershell
 .\start-dev.ps1
@@ -191,14 +204,12 @@ Para encerrar:
 
 ## Usuário local de demonstração
 
-Para ambiente local de desenvolvimento:
-
 ```text
 E-mail: admin@local.test
 Senha:  Admin123!
 ```
 
-> Esta credencial é apenas para desenvolvimento local. Em produção, segredos e contas administrativas devem ser configurados por mecanismos seguros de provisionamento e variáveis de ambiente.
+> Credencial exclusiva para desenvolvimento local.
 
 ## Endpoints principais
 
@@ -229,69 +240,109 @@ PUT    /api/orders/{id}/complete
 PUT    /api/orders/{id}/cancel
 ```
 
-## Testes
+## Testes automatizados
 
 ```powershell
 dotnet test
 ```
 
-O projeto de testes utiliza xUnit e pode ser expandido com testes de integração usando `WebApplicationFactory`.
+A suíte cobre 20 cenários:
+
+```text
+ProductService
+├── criação e normalização
+├── mapeamento
+├── busca
+├── atualização
+└── exclusão
+
+OrderService + PostgreSQL real
+├── baixa de estoque
+├── snapshot de preço
+├── agrupamento de itens repetidos
+├── rollback por estoque insuficiente
+├── cliente inativo
+├── cancelamento/restauração idempotente
+└── regras de conclusão/cancelamento
+
+AuthService + PostgreSQL real
+├── primeiro Admin
+├── usuários seguintes como Operator
+├── e-mail duplicado
+├── login válido
+├── senha inválida
+└── usuário inativo
+```
+
+Os testes de integração utilizam `Testcontainers.PostgreSql`, portanto sobem um PostgreSQL 16 descartável e validam transações e SQL real em vez de depender de um provider em memória.
+
+> Docker precisa estar ativo para executar a suíte de integração localmente.
+
+### Cobertura
+
+O workflow coleta cobertura com Coverlet e publica `coverage.cobertura.xml` como artefato do GitHub Actions.
+
+## Gerar screenshots e GIF do portfólio
+
+Com a aplicação rodando:
+
+```powershell
+.\scripts\capture-portfolio.ps1
+```
+
+O script instala temporariamente Playwright e as bibliotecas necessárias sem alterar `package.json`/`package-lock.json`, captura as telas e gera:
+
+```text
+docs/screenshots/
+├── 01-dashboard.png
+├── 02-categories.png
+├── 03-products.png
+├── 04-customers.png
+├── 05-orders.png
+└── order-flow.gif
+```
 
 ## CI
 
-O workflow em `.github/workflows/ci.yml` executa:
+`.github/workflows/ci.yml` valida:
 
 ```text
 Backend
-restore -> build -> test
+restore -> build -> testes + cobertura
 
 Frontend
-install -> build
+npm ci -> Angular build
 ```
 
-O pipeline é executado em `push` e `pull_request`.
-
-## Screenshots
-
-Adicione imagens reais da aplicação em `docs/screenshots/` e atualize esta seção. Recomenda-se capturar:
-
-- Login
-- Dashboard
-- Produtos
-- Clientes
-- Pedidos
-- Swagger
-
 ## Pontos técnicos para entrevista
-
-Este projeto permite discutir de forma concreta:
 
 - Dependency Injection e lifetimes.
 - `async/await` e `Task`.
 - DTOs e separação de responsabilidades.
 - EF Core, migrations e Change Tracking.
-- `AsNoTracking`.
-- LINQ e tradução para SQL.
+- LINQ e `AsNoTracking`.
 - JWT e RBAC.
 - transações ACID.
 - concorrência e `FOR UPDATE`.
-- REST e status HTTP.
+- rollback e idempotência.
+- unit tests x integration tests.
+- Testcontainers com PostgreSQL real.
 - Angular services, guards e interceptors.
-- Docker e CI/CD.
+- Docker e GitHub Actions.
 
-Há um roteiro específico em [`docs/INTERVIEW.md`](docs/INTERVIEW.md).
+Roteiro: [`docs/INTERVIEW.md`](docs/INTERVIEW.md).
 
 ## Próximas evoluções
 
-- testes de integração com PostgreSQL isolado;
+- testes HTTP end-to-end com `WebApplicationFactory`;
+- cenários de concorrência simultânea;
 - paginação e filtros server-side;
 - refresh token;
-- auditoria de alterações;
-- soft delete onde fizer sentido;
+- auditoria;
 - observabilidade e logs estruturados;
-- configuração de secrets fora do `appsettings.json`;
+- secrets fora do `appsettings.json`;
 - deploy automatizado.
 
 ---
 
-Projeto desenvolvido para aprofundar práticas de desenvolvimento full stack com .NET e Angular, aplicando conceitos de APIs REST, regras transacionais, persistência relacional e arquitetura de aplicações corporativas.
+Projeto desenvolvido para aprofundar práticas de desenvolvimento full stack com .NET e Angular, aplicando APIs REST, regras transacionais, persistência relacional, testes automatizados e arquitetura de aplicações corporativas.

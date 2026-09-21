@@ -1,0 +1,38 @@
+PATCH: TESTES + SCREENSHOTS/GIF + ROTEIRO DE ENTREVISTA
+
+1) Extraia este ZIP por cima de:
+   C:\Users\Iuri\order-management-dotnet-angular
+
+2) Pare a API/frontend se estiverem abertos.
+
+3) Garanta que Docker Desktop está ativo.
+
+4) Na raiz:
+   dotnet restore
+   dotnet build
+   dotnet test
+
+Esperado: 20 testes aprovados.
+
+5) Suba o sistema:
+   .\start-dev.ps1
+
+6) Em outro PowerShell, gere as imagens reais:
+   .\scripts\capture-portfolio.ps1
+
+7) Confira docs\screenshots.
+
+8) Valide frontend:
+   cd frontend\order-management-web
+   npm run build
+   cd ..\..
+
+9) Versione:
+   git status
+   git add .
+   git commit -m "test: expand integration coverage and portfolio docs"
+   git push
+
+Observação:
+- Os testes de integração usam Testcontainers e precisam do Docker ativo.
+- O capturador visual instala Playwright temporariamente com --no-save.
